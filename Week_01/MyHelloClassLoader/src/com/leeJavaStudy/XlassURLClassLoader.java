@@ -3,21 +3,27 @@ package com.leeJavaStudy;
 import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLDecoder;
 
 public class XlassURLClassLoader extends URLClassLoader {
 
-    URL url = null;
     // 指定类加载器
-    public XlassURLClassLoader(URL url) {
-        super(new URL[]{url});
-        this.url = url;
+    public XlassURLClassLoader() {
+        super(new URL[0]);
     }
 
     @Override
     public Class<?> findClass(String fullName) throws ClassNotFoundException {
         try {
-            //加载自定义类数据
-            byte [] classData = getXlassFileData(fullName, this.url.getPath());
+            //从当前类运行目录，加载自定义类数据
+            String pathpath = "";
+            try {
+                pathpath = URLDecoder.decode(this.getClass().getResource("/").getPath(),"UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            System.out.println("当前项目CLASSPATH目录：" + pathpath);
+            byte [] classData = getXlassFileData(fullName, pathpath);
             fullName = fullName.replace('.', '/');
             String[] names = fullName.split("/");
             String className = "";

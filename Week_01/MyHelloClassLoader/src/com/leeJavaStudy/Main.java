@@ -9,11 +9,8 @@ public class Main {
     public static void main(String[] args) {
 	// write your code here
         try {
-            String path = new File("").getCanonicalPath();
-            URL url = new URL("file:\\"+path+"\\");
-            System.out.println("当前项目路径:" + url.getPath());
-            String className = "Hello";
-            ClassLoader cl = new XlassURLClassLoader(url);
+            String className = "com.leeJavaStudy.Hello";
+            ClassLoader cl = new XlassURLClassLoader();
             Class c = cl.loadClass(className);
             Object action = c.newInstance();
             Method method = action.getClass().getMethod("hello");

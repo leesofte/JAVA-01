@@ -8,3 +8,4 @@
 
 
 （二）画一张图，展示 Xmx、Xms、Xmn、Meta、DirectMemory、Xss 这些内存参数的关系。
+![Image text](https://github.com/leesofte/JAVA-01/blob/main/Week_01/JVM%20Options%20and%20Memory%20Structure.png)

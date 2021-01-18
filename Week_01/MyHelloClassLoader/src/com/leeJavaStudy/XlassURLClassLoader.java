@@ -17,9 +17,9 @@ public class XlassURLClassLoader extends URLClassLoader {
     @Override
     public Class<?> findClass(String fullName) throws ClassNotFoundException {
         try {
-            System.out.println("当前项目目录：" + projectPath);
+            System.out.println("当前项目目录：" + this.projectPath);
             //获取字节码
-            byte [] classData = getXlassFileData(fullName, projectPath);
+            byte [] classData = getXlassFileData(fullName, this.projectPath);
             //字节码文件名解析
             String className = getClassName(fullName);
             //xlass数据解密
@@ -34,10 +34,11 @@ public class XlassURLClassLoader extends URLClassLoader {
         return super.findClass(fullName);
     }
 
-    public byte[] getXlassFileData(String fullName, String path) {
+    public byte[] getXlassFileData(String fullName, String path) throws IOException {
         String classPath = path + fullName.replace('.', '/') + ".xlass";
         InputStream in = null;
         ByteArrayOutputStream out = null;
+        byte[] result = null;
         try {
             in = new FileInputStream(classPath);
             out = new ByteArrayOutputStream();
@@ -45,10 +46,14 @@ public class XlassURLClassLoader extends URLClassLoader {
             while ((data = in.read()) != -1) {
                 out.write(data);
             }
+            result = out.toByteArray();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            in.close();
+            out.close();
         }
-        return out.toByteArray();
+        return result;
     }
 
     public byte[] decode(byte[] xlass) {
@@ -60,25 +65,27 @@ public class XlassURLClassLoader extends URLClassLoader {
 
     public String getProductionPath() {
         //从当前类运行目录加载自定义类数据，编码：UTF-8。中文路径乱码问题
-        String productionPath = "";
+        String productionUTF8Path = "";
         try {
-            productionPath = URLDecoder.decode(this.getClass().getResource("/").getPath(),"UTF-8");
+            String productionPath = this.getClass().getResource("/").getPath();
+            productionUTF8Path = URLDecoder.decode(productionPath,"UTF-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        return productionPath;
+        return productionUTF8Path;
     }
 
     public String getProjectPath() {
         //从当前项目目录加载自定义类数据，编码：UTF-8。解决中文路径乱码问题
-        String projectPath = "";
+        String projectUTF8Path = "";
         try {
-            projectPath = URLDecoder.decode(new File("").getCanonicalPath(),"UTF-8");
-            projectPath = projectPath + "\\";
+            String projectPath = new File("").getCanonicalPath();
+            projectUTF8Path = URLDecoder.decode(projectPath,"UTF-8");
+            projectUTF8Path = projectPath + "\\";
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return projectPath;
+        return projectUTF8Path;
     }
 
     public String getClassName(String fullName) {

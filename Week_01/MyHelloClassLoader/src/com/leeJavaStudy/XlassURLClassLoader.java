@@ -15,21 +15,13 @@ public class XlassURLClassLoader extends URLClassLoader {
     @Override
     public Class<?> findClass(String fullName) throws ClassNotFoundException {
         try {
-            //从当前类运行目录，加载自定义类数据
-            String pathpath = "";
-            try {
-                pathpath = URLDecoder.decode(this.getClass().getResource("/").getPath(),"UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-            System.out.println("当前项目CLASSPATH目录：" + pathpath);
-            byte [] classData = getXlassFileData(fullName, pathpath);
-            fullName = fullName.replace('.', '/');
-            String[] names = fullName.split("/");
-            String className = "";
-            if (names.length > 0) {
-                className = names[names.length-1];
-            }
+            //获取当前项目CLASSPATH目录
+            String productionPath = getProductionPath();
+            System.out.println("当前项目CLASSPATH目录：" + productionPath);
+            //获取字节码
+            byte [] classData = getXlassFileData(fullName, productionPath);
+            //字节码文件名解析
+            String className = getClassName(fullName);
             //xlass数据解密
             classData = decode(classData);
             if(classData != null){
@@ -64,6 +56,28 @@ public class XlassURLClassLoader extends URLClassLoader {
             xlass[i] = (byte) (255 - xlass[i]);
         }
         return xlass;
+    }
+
+    public String getProductionPath() {
+        //从当前类运行目录加载自定义类数据，编码：UTF-8。中文路径乱码问题
+        String productionPath = "";
+        try {
+            productionPath = URLDecoder.decode(this.getClass().getResource("/").getPath(),"UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return productionPath;
+    }
+
+    public String getClassName(String fullName) {
+        //从com.leeJavaStudy.Hello中获取真正的Hello类名
+        fullName = fullName.replace('.', '/');
+        String[] names = fullName.split("/");
+        String className = "";
+        if (names.length > 0) {
+            className = names[names.length-1];
+        }
+        return className;
     }
 
 }

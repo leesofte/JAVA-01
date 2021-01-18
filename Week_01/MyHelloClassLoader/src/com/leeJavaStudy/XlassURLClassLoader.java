@@ -7,19 +7,19 @@ import java.net.URLDecoder;
 
 public class XlassURLClassLoader extends URLClassLoader {
 
+    String projectPath = "";
     // 指定类加载器
     public XlassURLClassLoader() {
         super(new URL[0]);
+        projectPath = getProjectPath();
     }
 
     @Override
     public Class<?> findClass(String fullName) throws ClassNotFoundException {
         try {
-            //获取当前项目CLASSPATH目录
-            String productionPath = getProductionPath();
-            System.out.println("当前项目CLASSPATH目录：" + productionPath);
+            System.out.println("当前项目目录：" + projectPath);
             //获取字节码
-            byte [] classData = getXlassFileData(fullName, productionPath);
+            byte [] classData = getXlassFileData(fullName, projectPath);
             //字节码文件名解析
             String className = getClassName(fullName);
             //xlass数据解密
@@ -67,6 +67,18 @@ public class XlassURLClassLoader extends URLClassLoader {
             e.printStackTrace();
         }
         return productionPath;
+    }
+
+    public String getProjectPath() {
+        //从当前项目目录加载自定义类数据，编码：UTF-8。解决中文路径乱码问题
+        String projectPath = "";
+        try {
+            projectPath = URLDecoder.decode(new File("").getCanonicalPath(),"UTF-8");
+            projectPath = projectPath + "\\";
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return projectPath;
     }
 
     public String getClassName(String fullName) {
